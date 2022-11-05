@@ -8,15 +8,11 @@ We will be using the Usenti program to convert .png image files to .c and .h Bac
 4. Initialize that background's control register to use the right CBB, SBB and bitdepth.
 
 ### Notes on The Background Image
-- **870 x 728** pixel Background
+- The original background is **870 x 728 px**
 
-<!-- Figure in HTML -->
-<div style="width:512px; background:black; margin:0 auto;">
-    <div style="margin:0 auto; text-align: center;">
-        <img style = "width:500px;" src="./Images/Background/background.png" alt="Brinstar map">
-        <b>Fig 9.1a</b>: image on screen.
-    </div>
-</div>
+    <img style = "width:500px;" src="./Images/Background/background.png" alt="Brinstar map">
+
+    <b>Fig 9.1a</b>: image on screen.
 
 <!-- - The size of each tile is always 8×8 pixels
 - Thus we should have 60 x 40 Tiles = **2,400 Tiles**
