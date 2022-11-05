@@ -1,18 +1,12 @@
 # Regular Tiled Backgrounds
 We will be using the Usenti program to convert .png image files to .c and .h Background Tiles
 
-## Essential tilemap steps
-1. Load the graphics: tiles into charblocks and colors in the background palette.
-2. Load a map into one or more screenblocks.
-3. Switch to the right mode in REG_DISPCNT and activate a background.
-4. Initialize that background's control register to use the right CBB, SBB and bitdepth.
-
-### Notes on The Background Image
+## Notes on The Background Image
 - The original background is **870 x 728 px**
 
-    <img style = "width:500px;" src="./Images/Background/background.png" alt="Brinstar map">
+    <img style = "width:250px;" src="./Images/Background/Scratch.png" alt="Scratch.png">
 
-    <b>Fig 9.1a</b>: image on screen.
+    <b>Fig 1</b>: Background of Scratch game.
 
 <!-- - The size of each tile is always 8×8 pixels
 - Thus we should have 60 x 40 Tiles = **2,400 Tiles**
@@ -24,7 +18,11 @@ We will be using the Usenti program to convert .png image files to .c and .h Bac
 ### Problems
 - **Background Size**:
     - Regular and affine backgrounds have different sizes available to them:
-    <!-- ![image](/images/Guides/BackgroundControl.jpg) -->
+
+        <img style = "width:500px;" src="./Images/Guides/BackgroundControl.jpg" alt="BackgroundControl.jpg">
+
+        <b>Fig 2</b>: Outline of REG_BGxCNT taken from the tonc text
+
     - Usenti will only export bitmaps with dimensions in multiples of 256. 
     This means Our width and height should only take values of **256, 512 , 768, or 1024**.
     However, a regular background can only be up to **512 x 512**
@@ -34,21 +32,44 @@ We will be using the Usenti program to convert .png image files to .c and .h Bac
 ### Solutions
 - **Background Size**:
     - Scale the 870 x 728 background to 512 x 429.
-    - To make the overall image 512 x 512 for Usenti, add 512 x 83 white pixels at the bottom of the image
+    - To make the overall image 512 x 512, Usenti will add 512 x 83 white pixels at the bottom of the image during export
+- **Background Quality**:
+    - To make up for the poor image quality, I redid the background in photoshop
 
+        <img style = "width:500px;" src="./Images/Background/background.png" alt="background.png">
 
-<!-- ## Structure of the Tiles Map in C
-- The size of the maps is set by the control registers and can be between **128×128** and **1024×1024** pixels
-- Note that because the map here is 60 x 40 tiles, which requires splitting into screenblocks. In Usenti this is called the `sbb` layout. After a conversion you'd have a **palette, a tileset and a tilemap**. 
-- Def: The list of unique tiles is the **tileset**. The image is divided into a matrix of tiles. Each element in the matrix has a tile index which indicates which tile should be rendered there. This is known as the **tilemap**. The list of unique colors of pixels is called the **palette**.
+        <b>Fig 3</b>: New Background image.
+
+## Using Usenti to Convert PNG to Tiled Map
+1. Open usenti
+2. Open the map png
+3. Image > Export
+4. Change file type to GBA Source (.c)
+5. Use these properties
+
+    <img style = "width:500px;" src="./Images/Guides/BackgroundEdit.jpg" alt="BackgroundControl.jpg">
+
+    <b>Fig 4</b>: Sceenshot of Usenti Export
+
+6. Usenti should have exported a .c and .h file in the location you exported to
+
+**Def**: The list of unique tiles is the **tileset**. The image is divided into a matrix of tiles. Each element in the matrix has a tile index which indicates which tile should be rendered there. This is known as the **tilemap**. The list of unique colors of pixels is called the **palette**.
+
+<!-- ## Essential tilemap steps
+1. Load the graphics: tiles into charblocks and colors in the background palette.
+2. Load a map into one or more screenblocks.
+3. Switch to the right mode in REG_DISPCNT and activate a background.
+4. Initialize that background's control register to use the right CBB, SBB and bitdepth. -->
+
+## Structure of the Tiles Map in C
 ```C
 
-const unsigned short bgrTiles[96] __attribute__((aligned(4)))=
+onst unsigned char bgrTiles[12928] __attribute__((aligned(4)))=
 {
     // Some data here
 }
 
-const unsigned short bgrMap[2400] __attribute__((aligned(4)))=
+onst unsigned char bgrMap[8192] __attribute__((aligned(4)))=
 {
     // Map row 0
     0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x3001,0x3002,
@@ -65,18 +86,14 @@ const unsigned short bgrMap[2400] __attribute__((aligned(4)))=
     // ... etc
 }
 
-const unsigned short bgrPal[8] __attribute__((aligned(4)))=
+const unsigned char bgrPal[16] __attribute__((aligned(4)))=
 {
     0x1507,0x39AC,0x2DD2,0x4652,0x35CE,0x0000,0x0000,0x0000,
-    // Grass, Road, Sidewalk, Buildings, Brick, Black, Black, Black
-    // Pal needs to be a multiple of 8 (thats why all the black values)(not sure why?)
+    // Pal needs to be a multiple of 8 (thats why all the black 0x0000 values) Not sure why?
 };
 ```
+To understand what's happening here a bit better lets look closer at Figure 3:
 
+<img style = "width:500px;" src="./Images/Guides/Tiles.png" alt="Tiles.png">
 
-## Convert PNG to Tiled Map
-1. Open usenti
-2. Open the map png
-3. Image > Export
-4. Use these properties
-![image](/images/Guides/BackgroundEdit.jpg) -->
+<b>Fig 5</b>: Close up of the new map
