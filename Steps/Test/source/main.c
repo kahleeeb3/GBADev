@@ -1,57 +1,68 @@
 #include <string.h>
 #include <tonc.h>
-#include "bgr.h"
+#include "ch1.h"
 
-// move the map
-void move(){
-	
-	int tile_x = 0; // x-coor of tile
-	int tile_y = 0; // y-cool of tile
-	
+OBJ_ATTR obj_buffer[128]; // allocate space for 128 sprites
+OBJ_ATTR *ch1= &obj_buffer[0]; // define the caleb sprite
+
+
+void input()
+{
+	//u32 tid= 0, pb= 0;		// tile id, pal-bank
+
 	while(1)
 	{
 		vid_vsync();
 		key_poll();
-		tile_x += key_tri_horz();
-		tile_y += key_tri_vert();
-		REG_BG0HOFS= tile_x;
-		REG_BG0VOFS= tile_y;
+			
 		
+		// flip left and right when moving
+		// if flipped: ch1->attr1 = 0x1XXX
+		// Since ATTR1_HFLIP = 0x1000, 
+		// attr1 & ATTR1_HFLIP = 0x0000 when ch1 is not flipped
+		
+		if(key_hit(KEY_LEFT) && (ch1->attr1 & ATTR1_HFLIP) != 0x1000)
+			ch1->attr1 ^= ATTR1_HFLIP;
+			
+		// same thing here but for the other direction
+		if(key_hit(KEY_RIGHT) && (ch1->attr1 & ATTR1_HFLIP) != 0x0000)
+			ch1->attr1 ^= ATTR1_HFLIP;
+		
+		oam_copy(oam_mem, obj_buffer, 1);	// update 1 sprite in obj_buffer
+
 	}
 }
 
+// create the caleb sprite
+void caleb(){
+	
+	int x = 96; // starting x pos
+	int y = 32; // starting y pos
+	
+	memcpy(&tile_mem[4][0], ch1Tiles, ch1TilesLen); // copy tiles
+	memcpy(pal_obj_mem, ch1Pal, ch1PalLen); // copy the palette
+	
+	obj_set_attr(ch1, 
+		ATTR0_SQUARE,		// Square, regular sprite
+		ATTR1_SIZE_32,		// 32x32p, 
+		0);					// Not sure this is relevant to me?
 
-// create the background
-void map(){
-
-	// Load palette
-    memcpy(pal_bg_mem, bgrPal, bgrPalLen);
-    // Load tiles into CBB 0
-    memcpy(&tile_mem[0][0], bgrTiles, bgrTilesLen);
-    // Load map into SBB 30
-    memcpy(&se_mem[30][0], bgrMap, bgrMapLen);
-
-    // set up BG0 for a 4bpp 64x32t map, using charblock 0 and screenblock 31
-	// BG_CBB - Character Base Block - Sets the charblock that serves as the base for character/tile indexing. (Values: 0-3)
-	// REG_BGxCNT - The primary control register (1 of 3). x indicates the background 0 -3
-	// BG_SBB - Screen Base Block - Sets the screen block that serves as the base for screen-entry/map indexing. (Values: 0-31)
-	// BG_4BPP (GB_8BPP) - Color Mode - 16 colors (4bpp) if cleared; 256 colors (8bpp) if set
-	// BG_REG_64x64 - Regular background (not affine) - Tiles: 64x64 Pixels: 512x512
-	REG_BG0CNT= BG_CBB(0) | BG_SBB(30) | BG_4BPP | BG_REG_64x64;
-    REG_DISPCNT= DCNT_MODE0 | DCNT_BG0;	
-
+	obj_set_pos(ch1, x, y);
+	
 }
-
-
-// main function
 int main()
 {
-	// draw the map
-	map();
+	
+	oam_init(obj_buffer, 128); // initialize 128 sprites
+	REG_DISPCNT= DCNT_OBJ | DCNT_OBJ_1D; // Enable Objects & OBJ-VRAM as array.
+	
+	// create caleb
+	caleb();
+	
 	// take input
-	move();
+	input();
 
 	while(1);
 
 	return 0;
-}
+}		

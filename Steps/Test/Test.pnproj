@@ -1,1 +1,1 @@
-<Project name="Test"><Folder name="source"><File path="source\main.c"></File><File path="source\bgr.c"></File></Folder><Folder name="include"><File path="include\bgr.h"></File></Folder><File path="Makefile"></File></Project>
+<Project name="Test"><Folder name="source"><File path="source\main.c"></File><File path="source\ch1.c"></File></Folder><Folder name="include"><File path="include\ch1.h"></File></Folder><File path="Makefile"></File></Project>
